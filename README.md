@@ -79,8 +79,8 @@ Once you've got it started, just add new iso(s) to your `iso` subdir and edit `g
 
 Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with other tips or ideas from:
 
-  - https://help.ubuntu.com/community/Grub2/ISOBoot
-  - http://askubuntu.com/questions/388382/multi-partition-multi-os-bootable-usb
+  - https://help.ubuntu.com/community/Grub2/ISOBoot  (includes ideas to make it UEFI compatible)
+  - http://askubuntu.com/questions/388382/multi-partition-multi-os-bootable-usb (UEFI notes)
   - https://wiki.archlinux.org/index.php/Multiboot_USB_drive
   - http://www.pendrivelinux.com/multiboot-create-a-multiboot-usb-from-linux/
 
