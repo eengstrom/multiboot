@@ -1,6 +1,6 @@
-Creation/Curation of Multiboot USB Stick or SD card or ...
+# Creation/Curation of Multiboot USB Stick or SD card or ...
 
-# Creation
+## Creation
 
 First step is to create a bootable device, in my case a system embedded sd card, but works equally well 
 for a USB stick.
@@ -34,10 +34,9 @@ As an example for Ubuntu 16.04, you can fetch:
 
     http://archive.ubuntu.com/ubuntu/dists/xenial/main/installer-amd64/current/images/netboot/mini.iso 
 
-Chances are there is NOTHING (or no file) for your `/mnt/multiboot/boot/grub/grub.cfg`, but if there is, modify it to suit your distro needs, but here is an mini example to get you started (or [my current full one](multiboot.cfg)):
+## Curation
 
-    # Idea from: 
-    # - http://www.circuidipity.com/multi-boot-usb.html
+Once you've got it started, just add new iso(s) to your `iso` subdir and edit `grub.cfg`.  When you first get started, chances are there is NOTHING (or no file) for your `/mnt/multiboot/boot/grub/grub.cfg`, but if there is, modify it to suit your distro needs, but here is an mini example to get you started (or [my current full one](boot/grub/grub.cfg)):
 
     # Timeout for menu
     set timeout=60
@@ -49,21 +48,23 @@ Chances are there is NOTHING (or no file) for your `/mnt/multiboot/boot/grub/gru
     set menu_color_normal=white/black
     set menu_color_highlight=white/green
 
-    # Typical recipe for linux-flavored isos:
-    # - vmlinuz : add findiso=$iso to end
-
-    # ---- UBUNTU ----
-    submenu 'Ubuntu GNU/Linux' {
-      # 16.x Xenial LTS - https://help.ubuntu.com/community/Installation/MinimalCD
-      menuentry "Ubuntu 16.04/Xenial LTS - 64bit Mini-Installer" {
-          set iso="/iso/ubuntu-16.04-mini-amd64.iso"
-          loopback loop $iso
-          linux (loop)/linux boot=casper iso-scan/filename=$iso noprompt noeject
-          initrd (loop)/initrd.gz
-      }
+    # 9.x/Stretch: http://ftp.nl.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/
+    menuentry "Debian 9.x/Stretch - AMD64 Mini/Netboot-Installer" {
+        set iso="/iso/debian-9.x-amd64-mini.iso"
+        loopback loop $iso
+        linux (loop)/linux
+        initrd (loop)/initrd.gz
+    }
+  
+    # 16.x Xenial LTS - https://help.ubuntu.com/community/Installation/MinimalCD
+    menuentry "Ubuntu 16.04/Xenial LTS - 64bit Mini-Installer" {
+        set iso="/iso/ubuntu-16.04-mini-amd64.iso"
+        loopback loop $iso
+        linux (loop)/linux boot=casper iso-scan/filename=$iso noprompt noeject
+        initrd (loop)/initrd.gz
     }
 
-Cleanup:
+## Cleanup:
     
     # simplify future editing of grub with symlink to "root"
     # works on Mac - unsure of magic - but not on most Linux-en:
@@ -73,18 +74,28 @@ Cleanup:
     $ umount /mnt/multiboot
 
 
-# Footnotes
+
+# Notes/other ideas
 
 Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with other tips or ideas from:
 
+  - https://help.ubuntu.com/community/Grub2/ISOBoot
   - http://askubuntu.com/questions/388382/multi-partition-multi-os-bootable-usb
+  - https://wiki.archlinux.org/index.php/Multiboot_USB_drive
   - http://www.pendrivelinux.com/multiboot-create-a-multiboot-usb-from-linux/
-  - http://www.pendrivelinux.com/yumi-multiboot-usb-creator/
-  - http://www.pendrivelinux.com/xboot-multiboot-iso-usb-creator/
-  - http://www.pendrivelinux.com/universal-usb-installer-easy-as-1-2-3/
 
-# Edit `[[file:boot/grub/grub.cfg][/boot/grub/grub.cfg]]` to add new entries
-# FreeDos bootable USB:
-http://chtaube.eu/computers/freedos/bootable-usb/
-# Other related
-http://rentageekla.com/2010/10/27/how-to-mount-an-iso-that-contains-multiple-partitions/
+
+## Mounting ISO on (Mac) OSX, e.g. to examine embedded grub.cfg ([source][2]):
+
+    hdiutil attach -nomount DIST.iso
+    mkdir /tmp/DIST
+    mount -t cd9660 /dev/diskX /tmp/DIST
+    less /tmp/DIST/boot/grub/grub.cfg
+    ...
+    umount /tmp/DIST
+    hdiutil detach diskX
+
+# References
+[2]: https://unix.stackexchange.com/questions/298685/can-a-mac-mount-a-debian-install-cd
+[3]: http://rentageekla.com/2010/10/27/how-to-mount-an-iso-that-contains-multiple-partitions/
+[4]: http://chtaube.eu/computers/freedos/bootable-usb/
