@@ -36,7 +36,7 @@ As an example for Ubuntu 16.04, you can fetch:
 
 ## Curation
 
-Once you've got it started, just add new iso(s) to your `iso` subdir and edit `grub.cfg`.  When you first get started, chances are there is NOTHING (or no file) for your `/mnt/multiboot/boot/grub/grub.cfg`, but if there is, modify it to suit your distro needs, but here is an mini example to get you started (or [my current full one](boot/grub/grub.cfg)):
+Once you've got it started, just add new iso(s) to your `iso` subdir and edit `grub.cfg`.  When you first get started, chances are there is NOTHING (or no file) for your `/mnt/multiboot/boot/grub/grub.cfg`, but if there is, modify it to suit your distro needs, but here is an mini example to get you started (or see [my current full one](boot/grub/grub.cfg)):
 
     # Timeout for menu
     set timeout=60
@@ -64,16 +64,18 @@ Once you've got it started, just add new iso(s) to your `iso` subdir and edit `g
         initrd (loop)/initrd.gz
     }
 
+The main trick is the use of the `loopback` directive to directly use the iso, but other directives to the linux kernel may be required, such as `iso-scan/opt=xxx`.  Unfortuantely, it's still a bit more of an art to know what's in the `initrd` image to know what things you can use to ensure the kernel has all the required bits.  Also, sometimes it's helpful to examine the `grub.cfg` inside iso itself (which is otherwise **not** used in this setup) to see what options are typically passed to the kernel on boot.
+
 ## Cleanup:
     
-    # simplify future editing of grub with symlink to "root"
-    # works on Mac - unsure of magic - but not on most Linux-en:
+    # simplify future editing of grub with symlink to "root".
+    # works on Mac - unsure of magic.
+    # .. but not on Linux, since FAT* fs can't do symlinks.
+    $ cd /mnt/multiboot
     $ ln -s boot/grub/grub.cfg /mnt/multiboot/grub.cfg
     # unmount the device
     $ cd /mnt
     $ umount /mnt/multiboot
-
-
 
 # Notes/other ideas
 
@@ -83,7 +85,7 @@ Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with ot
   - http://askubuntu.com/questions/388382/multi-partition-multi-os-bootable-usb (UEFI notes)
   - https://wiki.archlinux.org/index.php/Multiboot_USB_drive
   - http://www.pendrivelinux.com/multiboot-create-a-multiboot-usb-from-linux/
-
+  - http://chtaube.eu/computers/freedos/bootable-usb/
 
 ## Mounting ISO on (Mac) OSX, e.g. to examine embedded grub.cfg ([source][2]):
 
@@ -95,7 +97,5 @@ Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with ot
     umount /tmp/DIST
     hdiutil detach diskX
 
-# References
 [2]: https://unix.stackexchange.com/questions/298685/can-a-mac-mount-a-debian-install-cd
 [3]: http://rentageekla.com/2010/10/27/how-to-mount-an-iso-that-contains-multiple-partitions/
-[4]: http://chtaube.eu/computers/freedos/bootable-usb/
