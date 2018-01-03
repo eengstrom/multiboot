@@ -8,3 +8,4 @@ boot/grub/grubenv
 boot/grub/locale
 grub.cfg
 iso
+glim
