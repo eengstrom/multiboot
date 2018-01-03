@@ -77,15 +77,18 @@ The main trick is the use of the `loopback` directive to directly use the iso, b
     $ cd /mnt
     $ umount /mnt/multiboot
 
-# Notes/other ideas
+# Notes / Links
 
 Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with other tips or ideas from:
 
   - https://help.ubuntu.com/community/Grub2/ISOBoot  (includes ideas to make it UEFI compatible)
+  - https://help.ubuntu.com/community/Grub2/ISOBoot/Examples
   - http://askubuntu.com/questions/388382/multi-partition-multi-os-bootable-usb (UEFI notes)
   - https://wiki.archlinux.org/index.php/Multiboot_USB_drive
   - http://www.pendrivelinux.com/multiboot-create-a-multiboot-usb-from-linux/
+  - https://github.com/thias/glim
   - http://chtaube.eu/computers/freedos/bootable-usb/
+  - https://wdullaer.com/blog/2010/02/26/boot-iso-files-from-usb-with-grub4dos/ (using `grub4dos`)
 
 ## Mounting ISO on (Mac) OSX, e.g. to examine embedded grub.cfg ([source][2]):
 
