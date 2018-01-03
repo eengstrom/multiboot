@@ -1,6 +1,20 @@
-# Creation/Curation of Multiboot USB Stick or SD card or ...
+# Multiboot USB Stick or SD card or ...
 
-## Creation
+Say you want to be able to boot multiple different tools or operating systems from a single USB memory device (thumb drive, SD card, etc.), then you can create one using my recipie and extend my example configuration.
+
+While I don't provide the ISOs here, the creation of the device, including installation of `grub`, with some examples for the `grub.cfg` are provided.
+
+Since I routinely use this for various environments (including serial consoles), I keep the configuration of GRUB simple - all text based, no graphics, no bling.
+
+## Automated Creation
+
+The easiest option is a canned setup.  However, since this destructively mangles whatever device you tell it to, I suggest you **READ CAREFULLY** and then perhaps try the script:
+
+    ./bin/mkmb.sh
+
+It should create and populate a reasonable structure, including copying over the template grub.cfg and any available ISOs you've already downloaded.
+
+## Manual Creation
 
 First step is to create a bootable device, in my case a system embedded sd card, but works equally well 
 for a USB stick.
@@ -19,10 +33,9 @@ for a USB stick.
     $ mkfs -t vfat /dev/sdX1  # or -t fat32
     $ mkdir /tmp/multiboot
     $ mount /dev/sdX1 /mnt/multiboot
-    $ grub-install --force --no-floppy --root-directory=/mnt/multiboot /dev/sdX
+    $ grub-install --force --no-floppy --boot-directory=/mnt/multiboot /dev/sdX
   
-  Note that I tried FS type EXFAT, but that caused grief with some
-  distros - error about "unknown file system type" on boot (from iso).
+Note that I tried FS type EXFAT, but that caused grief with some distros - error about "unknown file system type" on boot (from iso).
 
 Then, setup the file system structure (arbitrary, but cleaner, IMO)
 
@@ -36,7 +49,7 @@ As an example for Ubuntu 16.04, you can fetch:
 
 ## Curation
 
-Once you've got it started, just add new iso(s) to your `iso` subdir and edit `grub.cfg`.  When you first get started, chances are there is NOTHING (or no file) for your `/mnt/multiboot/boot/grub/grub.cfg`, but if there is, modify it to suit your distro needs, but here is an mini example to get you started (or see [my current full one](boot/grub/grub.cfg)):
+Once you've got it started, just add new iso(s) to your `iso` subdir and edit `grub.cfg`.  When you first get started, chances are there is NOTHING (or no file) for your `/mnt/multiboot/grub/grub.cfg`, but if there is, modify it to suit your distro needs, but here is an mini example to get you started (or see [my current full one](grub/grub.cfg)):
 
     # Timeout for menu
     set timeout=60
@@ -66,13 +79,13 @@ Once you've got it started, just add new iso(s) to your `iso` subdir and edit `g
 
 The main trick is the use of the `loopback` directive to directly use the iso, but other directives to the linux kernel may be required, such as `iso-scan/opt=xxx`.  Unfortuantely, it's still a bit more of an art to know what's in the `initrd` image to know what things you can use to ensure the kernel has all the required bits.  Also, sometimes it's helpful to examine the `grub.cfg` inside iso itself (which is otherwise **not** used in this setup) to see what options are typically passed to the kernel on boot.
 
-## Cleanup:
+## Cleanup
     
     # simplify future editing of grub with symlink to "root".
     # works on Mac - unsure of magic.
     # .. but not on Linux, since FAT* fs can't do symlinks.
     $ cd /mnt/multiboot
-    $ ln -s boot/grub/grub.cfg /mnt/multiboot/grub.cfg
+    $ ln -s grub/grub.cfg grub.cfg
     # unmount the device
     $ cd /mnt
     $ umount /mnt/multiboot
@@ -90,7 +103,7 @@ Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with ot
   - http://chtaube.eu/computers/freedos/bootable-usb/
   - https://wdullaer.com/blog/2010/02/26/boot-iso-files-from-usb-with-grub4dos/ (using `grub4dos`)
 
-## Mounting ISO on (Mac) OSX, e.g. to examine embedded grub.cfg ([source][2]):
+## Mounting ISO on (Mac) OSX, e.g. to examine embedded grub.cfg ([source][2])
 
     hdiutil attach -nomount DIST.iso
     mkdir /tmp/DIST
