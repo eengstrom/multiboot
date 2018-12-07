@@ -16,7 +16,7 @@ It should create and populate a reasonable structure, including copying over the
 
 ## Manual Creation
 
-First step is to create a bootable device, in my case a system embedded sd card, but works equally well 
+First step is to create a bootable device, in my case a system embedded sd card, but works equally well
 for a USB stick.
 
     $ lsblk -d -io KNAME,TYPE,SIZE,MODEL
@@ -34,18 +34,18 @@ for a USB stick.
     $ mkdir /tmp/multiboot
     $ mount /dev/sdX1 /mnt/multiboot
     $ grub-install --force --no-floppy --boot-directory=/mnt/multiboot /dev/sdX
-  
+
 Note that I tried FS type EXFAT, but that caused grief with some distros - error about "unknown file system type" on boot (from iso).
 
 Then, setup the file system structure (arbitrary, but cleaner, IMO)
 
     $ cd /mnt/multiboot
     $ mkdir iso
-    $ wget -nc -o iso/DISTRO.iso http://..../<DISTRO>.iso 
+    $ wget -nc -o iso/DISTRO.iso http://..../<DISTRO>.iso
 
 As an example for Ubuntu 16.04, you can fetch:
 
-    http://archive.ubuntu.com/ubuntu/dists/xenial/main/installer-amd64/current/images/netboot/mini.iso 
+    http://archive.ubuntu.com/ubuntu/dists/xenial/main/installer-amd64/current/images/netboot/mini.iso
 
 ## Curation
 
@@ -53,10 +53,10 @@ Once you've got it started, just add new iso(s) to your `iso` subdir and edit `g
 
     # Timeout for menu
     set timeout=60
-    
+
     # Default boot entry
     set default=0
-    
+
     # Menu Colours
     set menu_color_normal=white/black
     set menu_color_highlight=white/green
@@ -68,7 +68,7 @@ Once you've got it started, just add new iso(s) to your `iso` subdir and edit `g
         linux (loop)/linux
         initrd (loop)/initrd.gz
     }
-  
+
     # 16.x Xenial LTS - https://help.ubuntu.com/community/Installation/MinimalCD
     menuentry "Ubuntu 16.04/Xenial LTS - 64bit Mini-Installer" {
         set iso="/iso/ubuntu-16.04-mini-amd64.iso"
@@ -80,7 +80,7 @@ Once you've got it started, just add new iso(s) to your `iso` subdir and edit `g
 The main trick is the use of the `loopback` directive to directly use the iso, but other directives to the linux kernel may be required, such as `iso-scan/opt=xxx`.  Unfortuantely, it's still a bit more of an art to know what's in the `initrd` image to know what things you can use to ensure the kernel has all the required bits.  Also, sometimes it's helpful to examine the `grub.cfg` inside iso itself (which is otherwise **not** used in this setup) to see what options are typically passed to the kernel on boot.
 
 ## Cleanup
-    
+
     # simplify future editing of grub with symlink to "root".
     # works on Mac - unsure of magic.
     # .. but not on Linux, since FAT* fs can't do symlinks.
@@ -103,6 +103,10 @@ Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with ot
   - http://chtaube.eu/computers/freedos/bootable-usb/
   - https://wdullaer.com/blog/2010/02/26/boot-iso-files-from-usb-with-grub4dos/ (using `grub4dos`)
 
+Other tools/tips
+
+  - https://rufus.akeo.ie/
+
 ## Mounting ISO on (Mac) OSX, e.g. to examine embedded grub.cfg ([source][2])
 
     hdiutil attach -nomount DIST.iso
@@ -115,3 +119,30 @@ Original idea came from http://www.circuidipity.com/multi-boot-usb.html, with ot
 
 [2]: https://unix.stackexchange.com/questions/298685/can-a-mac-mount-a-debian-install-cd
 [3]: http://rentageekla.com/2010/10/27/how-to-mount-an-iso-that-contains-multiple-partitions/
+
+# Random issues
+
+Collection of random issues I've run into when using using this stick
+to build systems.  Argueably, none of this is strictly related to the
+multiboot idea, but it's where I keep my notes and look for
+reminders/hints.
+
+## Ubuntu/Debian stalls installing GRUB @ 66%
+
+When installing Ubuntu 16.04 (or 18), with many LVM volumes (perhaps
+holding other OSes), the installation hangs at 66% "Installing GRUB boot loader".
+
+Found [this bug ref](https://bugs.launchpad.net/ubuntu/+source/os-prober/+bug/1663645) and [this one too](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=853187).
+
+Workaround for me was to follow the instructions in the latter and when at the “Install the GRUB boot loader to the master boot record?”  prompt in the installer, switch to a console (Alt-F2), and remove this file:
+
+    mv /target/etc/grub.d/30_os-prober /target/30_os-prober
+
+This will prevent update-grub from running os-prober, which should avoid running into this issue. Of course, other operating systems won't be listed, but at least that should prevent the installation process from getting entirely stuck.   After the reboot into the system, you can put back the `os-prober` script and try `update-grub` again.
+
+## Boot GRUB: `error: file '/grub/i386-pc/normal.mod' not found`
+
+When this occurs, something about installing grub failed to recognize the correct boot files to install.   [This post](https://askubuntu.com/questions/266429/error-file-grub-i386-pc-normal-mod-not-found) suggested a workaround to boot into a live instance (from your handy multiboot stick), mount the /boot partition (or root drive) and then reinstall grub.  e.g.:
+
+    mount /dev/sda1 /mnt
+    grub-install /dev/sda --boot-directory=/mnt
