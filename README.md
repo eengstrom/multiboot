@@ -1,5 +1,11 @@
 # Multiboot USB Stick or SD card or ...
 
+## Obsolete
+
+I've moved on and now use [Ventoy](https://www.ventoy.net/en/index.html).
+
+## Description
+
 Say you want to be able to boot multiple different tools or operating systems from a single USB memory device (thumb drive, SD card, etc.), then you can create one using my recipie and extend my example configuration.
 
 While I don't provide the ISOs here, the creation of the device, including installation of `grub`, with some examples for the `grub.cfg` are provided.
